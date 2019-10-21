@@ -1,0 +1,22 @@
+node-cache-key: &node-cache-key node-v1-{{ checksum "package.json" }}
+node-docker-image: &node-docker-image circleci/node:12.11
+
+version: 2.1
+
+executors:
+  node_executor:
+    docker:
+      - image: *node-docker-image
+
+jobs:
+  bootstrap:
+    description: Bootstrap
+    executor: node_executor
+    steps:
+      - run: echo TODO
+
+workflows:
+  version: 2
+  commit:
+    jobs:
+      - bootstrap
