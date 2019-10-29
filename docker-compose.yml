@@ -38,15 +38,17 @@ services:
       traefik.frontend.rule: Host:traefik.$DOMAIN
       traefik.frontend.auth.basic: ${BASIC_AUTH:?Missing BASIC_AUTH}
       traefik.port: 8080
-  #
-  # watchtower:
-  #   image: containrrr/watchtower
-  #   container_name: notify_watcher-watchtower
-  #   restart: always
-  #   volumes:
-  #     - /var/run/docker.sock:/var/run/docker.sock
-  #     - /root/.docker/config.json:/config.json
-  #
+
+  watchtower:
+    image: containrrr/watchtower
+    container_name: notify_watcher-watchtower
+    restart: always
+    environment:
+      WATCHTOWER_CLEANUP: 'true'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /root/.docker/config.json:/config.json
+
   mongo:
     image: mongo:4.2.0
     container_name: notify_watcher-mongo
