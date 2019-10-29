@@ -7,33 +7,30 @@ services:
     image: traefik:1.7.13 # The official Traefik docker image
     container_name: notify_watcher-proxy
     command:
-      --api --docker
-      # # - --acme.email=info@m$DOMAIN
-      # # - --acme.entryPoint=https
-      # # - --acme.httpchallenge.entrypoint=http
-      # # - --acme.onHostRule=true
-      # # - --acme.storage=acme.json
-      # - --api
-      # - --debug=false
-      # - --defaultentrypoints=https,http
-      # - --docker
-      # - --docker.domain=$DOMAIN
-      # - --docker.endpoint=unix:///var/run/docker.sock
-      # - --docker.exposedbydefault=false
-      # - --docker.watch=true
-      # # - --entryPoints=Name:http Address::80 Redirect.EntryPoint:https
-      # # - --entryPoints=Name:https Address::443 TLS
-      # - --logLevel=ERROR
-      # - --retry
+      - --acme
+      - --acme.acmelogging
+      - --acme.email=info@$DOMAIN
+      - --acme.entryPoint=https
+      - --acme.httpchallenge
+      - --acme.httpchallenge.entrypoint=http
+      - --acme.onHostRule=true
+      - --acme.storage=/letsencrypt/acme.json
+      - --api
+      - --defaultentrypoints=https,http
+      - --docker
+      - --entryPoints=Name:http Address::80 Redirect.EntryPoint:https
+      - --entryPoints=Name:https Address::443 TLS
+      - --loglevel=ERROR
+      - --retry
     restart: always
     ports:
       - '80:80'
-      # - '443:443'
+      - '443:443'
     expose:
       - 8080
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      # - ./acme.json:/acme.json
+      - ./letsencrypt:/letsencrypt
     labels:
       traefik.frontend.rule: Host:traefik.$DOMAIN
       traefik.frontend.auth.basic: ${BASIC_AUTH:?Missing BASIC_AUTH}
