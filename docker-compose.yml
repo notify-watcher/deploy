@@ -21,7 +21,7 @@ services:
       - --entryPoints=Name:http Address::80 Redirect.EntryPoint:https
       - --entryPoints=Name:https Address::443 TLS
       - --loglevel=ERROR
-      - --retry
+      - --traefiklog.format=common
     restart: always
     ports:
       - '80:80'
@@ -35,46 +35,47 @@ services:
       traefik.frontend.rule: Host:traefik.$DOMAIN
       traefik.frontend.auth.basic: ${BASIC_AUTH:?Missing BASIC_AUTH}
       traefik.port: 8080
-#
-# watchtower:
-#   image: containrrr/watchtower
-#   container_name: notify_watcher-watchtower
-#   restart: always
-#   volumes:
-#     - /var/run/docker.sock:/var/run/docker.sock
-#     - /root/.docker/config.json:/config.json
-#
-# mongo:
-#   image: mongo:4.2.0
-#   container_name: notify_watcher-mongo
-#   restart: always
-#   environment:
-#     MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER:?Missing MONGO_USER}
-#     MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASS:?Missing MONGO_PASS}
-#   expose:
-#     - 27017
-#   volumes:
-#     - ./mongo/db:/data/db
-#     - ./mongo/config:/data/configdb
-#   labels:
-#     traefik.enable: false
-#   mongoui:
-#   image: mongo-express:0.49.0
-#   container_name: notify_watcher-mongoui
-#   restart: always
-#   depends_on:
-#     - mongo
-#   environment:
-#     ME_CONFIG_MONGODB_SERVER: mongo
-#     ME_CONFIG_MONGODB_ENABLE_ADMIN: 'true'
-#     ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_USER}
-#     ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_PASS}
-#   expose:
-#     - 8081
-#   labels:
-#     traefik.frontend.auth.basic: ${BASIC_AUTH:?Missing BASIC_AUTH}
-#     traefik.frontend.rule: Host:mongoui.$DOMAIN
-#     traefik.port: 8081
+  #
+  # watchtower:
+  #   image: containrrr/watchtower
+  #   container_name: notify_watcher-watchtower
+  #   restart: always
+  #   volumes:
+  #     - /var/run/docker.sock:/var/run/docker.sock
+  #     - /root/.docker/config.json:/config.json
+  #
+  mongo:
+    image: mongo:4.2.0
+    container_name: notify_watcher-mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER:?Missing MONGO_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASS:?Missing MONGO_PASS}
+    expose:
+      - 27017
+    volumes:
+      - ./mongo/db:/data/db
+      - ./mongo/config:/data/configdb
+    labels:
+      traefik.enable: false
+    #
+  # mongoui:
+  #   image: mongo-express:0.49.0
+  #   container_name: notify_watcher-mongoui
+  #   restart: always
+  #   depends_on:
+  #     - mongo
+  #   environment:
+  #     ME_CONFIG_MONGODB_SERVER: mongo
+  #     ME_CONFIG_MONGODB_ENABLE_ADMIN: 'true'
+  #     ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_USER}
+  #     ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_PASS}
+  #   expose:
+  #     - 8081
+  #   labels:
+  #     traefik.frontend.auth.basic: ${BASIC_AUTH:?Missing BASIC_AUTH}
+  #     traefik.frontend.rule: Host:mongoui.$DOMAIN
+  #     traefik.port: 8081
 #
 # redis:
 #   image: redis:5.0.3
