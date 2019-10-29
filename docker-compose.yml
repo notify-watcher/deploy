@@ -80,48 +80,48 @@ services:
       traefik.frontend.auth.basic: ${BASIC_AUTH:?Missing BASIC_AUTH}
       traefik.frontend.rule: Host:mongoui.$DOMAIN
       traefik.port: 8081
-#
-# redis:
-#   image: redis:5.0.3
-#   container_name: notify_watcher-redis
-#   command: --requirepass ${REDIS_PASS}
-#   restart: always
-#   expose:
-#     - 6379
-#   volumes:
-#     - ./redis/data:/data
-#   labels:
-#     traefik.enable: false
-#
-# redisui:
-#   image: rediscommander/redis-commander:latest
-#   container_name: redisui
-#   restart: always
-#   depends_on:
-#     - redis
-#   environment:
-#     REDIS_HOST: redis
-#     REDIS_PASSWORD: ${REDIS_PASS}
-#   expose:
-#     - 8081
-#   labels:
-#     traefik.frontend.auth.basic: ${BASIC_AUTH:?Missing BASIC_AUTH}
-#     traefik.frontend.rule: Host:redisui.$DOMAIN
-#     traefik.port: 8081
-#
-# portainer:
-#   image: portainer/portainer:1.22.0
-#   container_name: portainer
-#   command: -H unix:///var/run/docker.sock
-#   restart: always
-#   expose:
-#     - 9000
-#   volumes:
-#     - /var/run/docker.sock:/var/run/docker.sock
-#     - ./portainer/data:/data
-#   labels:
-#     traefik.frontend.rule: Host:portainer.$DOMAIN
-#     traefik.port: 8081
+  #
+  # redis:
+  #   image: redis:5.0.3
+  #   container_name: notify_watcher-redis
+  #   command: --requirepass ${REDIS_PASS}
+  #   restart: always
+  #   expose:
+  #     - 6379
+  #   volumes:
+  #     - ./redis/data:/data
+  #   labels:
+  #     traefik.enable: false
+  #
+  # redisui:
+  #   image: rediscommander/redis-commander:latest
+  #   container_name: redisui
+  #   restart: always
+  #   depends_on:
+  #     - redis
+  #   environment:
+  #     REDIS_HOST: redis
+  #     REDIS_PASSWORD: ${REDIS_PASS}
+  #   expose:
+  #     - 8081
+  #   labels:
+  #     traefik.frontend.auth.basic: ${BASIC_AUTH:?Missing BASIC_AUTH}
+  #     traefik.frontend.rule: Host:redisui.$DOMAIN
+  #     traefik.port: 8081
+
+  portainer:
+    image: portainer/portainer:1.22.0
+    container_name: portainer
+    command: -H unix:///var/run/docker.sock
+    restart: always
+    expose:
+      - 9000
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./portainer/data:/data
+    labels:
+      traefik.frontend.rule: Host:portainer.$DOMAIN
+      traefik.port: 9000
 #
 # server:
 #   image: docker.pkg.github.com/notify-watcher/server/server
