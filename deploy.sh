@@ -20,8 +20,7 @@ if [[ "$1" != 'f' ]]; then
 fi
 
 echo "# Copying files"
-scp .env $destination
-scp docker-compose.yml $destination
+scp .env docker-compose.yml $destination
 
 echo "# Running deploy"
 ssh $HOST \
