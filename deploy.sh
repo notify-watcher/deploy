@@ -7,7 +7,7 @@ folder=notify-watcher
 destination=$HOST:$folder
 
 echo "# Creating $folder folder if necessary"
-if ! ssh $HOST stat $folder/acme.json \> /dev/null 2\>\&1; then
+if ! ssh $HOST stat $folder \> /dev/null 2\>\&1; then
   ssh $HOST "mkdir $folder"
 fi
 
