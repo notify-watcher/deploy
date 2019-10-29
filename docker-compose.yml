@@ -9,10 +9,10 @@ services:
     command:
       - --acme
       - --acme.acmelogging
-      - --acme.email=info@$DOMAIN
+      - --acme.dnschallenge
+      - --acme.dnschallenge.provider=cloudflare
+      - --acme.email=$LETS_ENCRYPT_EMAIL
       - --acme.entryPoint=https
-      - --acme.httpchallenge
-      - --acme.httpchallenge.entrypoint=http
       - --acme.onHostRule=true
       - --acme.storage=/letsencrypt/acme.json
       - --api
@@ -20,9 +20,12 @@ services:
       - --docker
       - --entryPoints=Name:http Address::80 Redirect.EntryPoint:https
       - --entryPoints=Name:https Address::443 TLS
-      - --loglevel=ERROR
+      - --loglevel=DEBUG
       - --traefiklog.format=common
     restart: always
+    environment:
+      CLOUDFLARE_EMAIL: ${CLOUDFLARE_EMAIL}
+      CLOUDFLARE_API_KEY: ${CLOUDFLARE_API_KEY}
     ports:
       - '80:80'
       - '443:443'
@@ -58,24 +61,25 @@ services:
       - ./mongo/config:/data/configdb
     labels:
       traefik.enable: false
-    #
-  # mongoui:
-  #   image: mongo-express:0.49.0
-  #   container_name: notify_watcher-mongoui
-  #   restart: always
-  #   depends_on:
-  #     - mongo
-  #   environment:
-  #     ME_CONFIG_MONGODB_SERVER: mongo
-  #     ME_CONFIG_MONGODB_ENABLE_ADMIN: 'true'
-  #     ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_USER}
-  #     ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_PASS}
-  #   expose:
-  #     - 8081
-  #   labels:
-  #     traefik.frontend.auth.basic: ${BASIC_AUTH:?Missing BASIC_AUTH}
-  #     traefik.frontend.rule: Host:mongoui.$DOMAIN
-  #     traefik.port: 8081
+
+  mongoui:
+    image: mongo-express:0.49.0
+    container_name: notify_watcher-mongoui
+    restart: always
+    depends_on:
+      - mongo
+    environment:
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_PASS}
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_USER}
+      ME_CONFIG_MONGODB_ENABLE_ADMIN: 'true'
+      ME_CONFIG_MONGODB_SERVER: mongo
+    expose:
+      - 8081
+    labels:
+      traefik.enable: true
+      traefik.frontend.auth.basic: ${BASIC_AUTH:?Missing BASIC_AUTH}
+      traefik.frontend.rule: Host:mongoui.$DOMAIN
+      traefik.port: 8081
 #
 # redis:
 #   image: redis:5.0.3
