@@ -111,7 +111,7 @@ services:
 
   portainer:
     image: portainer/portainer:1.22.0
-    container_name: portainer
+    container_name: notify_watcher-portainer
     command: -H unix:///var/run/docker.sock
     restart: always
     expose:
