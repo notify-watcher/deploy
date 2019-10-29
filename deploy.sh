@@ -6,17 +6,9 @@ fi
 folder=notify-watcher
 destination=$HOST:$folder
 
-if [[ "$1" != 'f' ]]; then
-  echo "# Creating $folder folder if necessary"
-  if ! ssh $HOST stat $folder/acme.json \> /dev/null 2\>\&1; then
-    ssh $HOST "mkdir $folder"
-  fi
-
-  echo "# Creating acme.json if necessary"
-  if ! ssh $HOST stat $folder/acme.json \> /dev/null 2\>\&1; then
-    echo "# Creating acme.json"
-    ssh $HOST "mkdir $destination/acme.json"
-  fi
+echo "# Creating $folder folder if necessary"
+if ! ssh $HOST stat $folder/acme.json \> /dev/null 2\>\&1; then
+  ssh $HOST "mkdir $folder"
 fi
 
 echo "# Copying files"
