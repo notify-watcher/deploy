@@ -1,0 +1,1 @@
+export HOST="the server for connecting trough ssh for deploy"
