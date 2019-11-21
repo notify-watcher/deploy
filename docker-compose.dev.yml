@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+  mongoui:
+    ports:
+      - '8081:8081'
+
+  redisui:
+    ports:
+      - '8082:8081'
+
+  server:
+    environment:
+      - DATABASE_HOST=mongo
+      - DATABASE_USERNAME
+      - DATABASE_PASSWORD
+      - PORT=3000
+    ports:
+      - '3010:3000'

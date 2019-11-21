@@ -1,0 +1,117 @@
+version: '3'
+
+services:
+  # https://docs.traefik.io/configuration/backends/docker/#using-docker-compose
+  # http://www.htaccesstools.com/htpasswd-generator/
+  reverse-proxy:
+    image: traefik:1.7.13 # The official Traefik docker image
+    container_name: notify_watcher-proxy
+    command:
+      - --acme
+      - --acme.acmelogging
+      - --acme.dnschallenge
+      - --acme.dnschallenge.provider=cloudflare
+      - --acme.email=$LETS_ENCRYPT_EMAIL
+      - --acme.entryPoint=https
+      - --acme.onHostRule=true
+      - --acme.storage=/letsencrypt/acme.json
+      - --api
+      - --defaultentrypoints=https,http
+      - --docker
+      - --entryPoints=Name:http Address::80 Redirect.EntryPoint:https
+      - --entryPoints=Name:https Address::443 TLS
+      - --loglevel=DEBUG
+      - --traefiklog.format=common
+    restart: always
+    environment:
+      CLOUDFLARE_EMAIL: ${CLOUDFLARE_EMAIL}
+      CLOUDFLARE_API_KEY: ${CLOUDFLARE_API_KEY}
+    ports:
+      - '80:80'
+      - '443:443'
+    expose:
+      - 8080
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./letsencrypt:/letsencrypt
+    labels:
+      traefik.frontend.rule: Host:traefik.$DOMAIN
+      traefik.frontend.auth.basic: ${BASIC_AUTH:?Missing BASIC_AUTH}
+      traefik.port: 8080
+
+  watchtower:
+    image: containrrr/watchtower
+    container_name: notify_watcher-watchtower
+    restart: always
+    environment:
+      WATCHTOWER_CLEANUP: 'true'
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /root/.docker/config.json:/config.json
+
+  mongo:
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER:?Missing MONGO_USER}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASS:?Missing MONGO_PASS}
+    labels:
+      traefik.enable: false
+
+  mongoui:
+    environment:
+      ME_CONFIG_MONGODB_ADMINPASSWORD: ${MONGO_PASS}
+      ME_CONFIG_MONGODB_ADMINUSERNAME: ${MONGO_USER}
+      ME_CONFIG_MONGODB_ENABLE_ADMIN: 'true'
+      ME_CONFIG_MONGODB_SERVER: mongo
+    expose:
+      - 8081
+    labels:
+      traefik.enable: true
+      traefik.frontend.auth.basic: ${BASIC_AUTH:?Missing BASIC_AUTH}
+      traefik.frontend.rule: Host:mongoui.$DOMAIN
+      traefik.port: 8081
+
+  redis:
+    command: --requirepass ${REDIS_PASS}
+    labels:
+      traefik.enable: false
+
+  redisui:
+    environment:
+      REDIS_HOST: redis
+      REDIS_PASSWORD: ${REDIS_PASS}
+    expose:
+      - 8081
+    labels:
+      traefik.enable: true
+      traefik.frontend.auth.basic: ${BASIC_AUTH:?Missing BASIC_AUTH}
+      traefik.frontend.rule: Host:redisui.$DOMAIN
+      traefik.port: 8081
+
+  portainer:
+    image: portainer/portainer:1.22.0
+    container_name: notify_watcher-portainer
+    command: -H unix:///var/run/docker.sock
+    restart: always
+    expose:
+      - 9000
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./portainer/data:/data
+    labels:
+      traefik.enable: true
+      traefik.frontend.rule: Host:portainer.$DOMAIN
+      traefik.port: 9000
+
+  server:
+    environment:
+      - DATABASE_HOST=mongo
+      - DATABASE_USERNAME=${MONGO_USER}
+      - DATABASE_PASSWORD=${MONGO_PASS}
+      - NODE_ENV=production
+      - PORT=3000
+    expose:
+      - 3000
+    labels:
+      traefik.enable: true
+      traefik.frontend.rule: Host:api.$DOMAIN
+      traefik.port: 3000
