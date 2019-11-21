@@ -1,3 +1,5 @@
+#!/bin/bash
+
 if [[ -z $HOST ]]; then
   echo "Need HOST env var"
   exit 1
@@ -12,14 +14,15 @@ if ! ssh $HOST stat $folder \> /dev/null 2\>\&1; then
 fi
 
 echo "# Copying files"
-scp .env docker-compose.yml $destination
+scp .env docker-compose.yml docker-compose.prod.yml $destination
 
 echo "# Running deploy"
-ssh $HOST \
-  'cd notify-watcher \
+ssh $HOST ' \
+  cd notify-watcher \
   && echo "# Pulling images" \
   && docker-compose pull \
   && echo "# Mounting containers" \
-  && docker-compose up -d --remove-orphans \
+  && docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --remove-orphans \
   && echo "# Pruning system" \
-  && echo y | docker system prune'
+  && echo y | docker system prune \
+  '
