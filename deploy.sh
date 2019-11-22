@@ -22,7 +22,8 @@ ssh $HOST ' \
   && echo "# Pulling images" \
   && docker-compose pull \
   && echo "# Mounting containers" \
-  && docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --remove-orphans \
+  && test -f docker-compose.other.yml || echo -e "version: \"3\"\n" > docker-compose.other.yml \
+  && docker-compose -f docker-compose.yml -f docker-compose.prod.yml -f docker-compose.other.yml up -d --remove-orphans \
   && echo "# Pruning system" \
   && echo y | docker system prune \
   '
