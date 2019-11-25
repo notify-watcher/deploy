@@ -9,6 +9,10 @@ services:
     ports:
       - '8082:8081'
 
+  email:
+    ports:
+      - '25:25'
+
   server:
     environment:
       - DATABASE_HOST=mongo

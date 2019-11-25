@@ -34,9 +34,15 @@ services:
     depends_on:
       - redis
 
+  email:
+    image: bytemark/smtp
+    container_name: notify_watcher-email
+    restart: always
+
   server:
     image: notifywatcher1/server:latest
     container_name: notify_watcher-api
     restart: always
     depends_on:
       - mongo
+      - email
