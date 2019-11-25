@@ -19,10 +19,10 @@ scp .env docker-compose.yml docker-compose.prod.yml $destination
 echo "# Running deploy"
 ssh $HOST ' \
   cd notify-watcher \
-  && echo "# Pulling images" \
-  && docker-compose pull \
-  && echo "# Mounting containers" \
   && test -f docker-compose.other.yml || echo -e "version: \"3\"\n" > docker-compose.other.yml \
+  && echo "# Pulling images" \
+  && docker-compose -f docker-compose.yml -f docker-compose.prod.yml -f docker-compose.other.yml pull \
+  && echo "# Mounting containers" \
   && docker-compose -f docker-compose.yml -f docker-compose.prod.yml -f docker-compose.other.yml up -d --remove-orphans \
   && echo "# Pruning system" \
   && echo y | docker system prune \
