@@ -1,4 +1,10 @@
 #!/bin/bash
 
-docker-compose pull
-docker-compose -f docker-compose.yml -f docker-compose.dev.yml up -d --remove-orphans
+function dcompose() {
+  docker-compose -f docker-compose.yml -f docker-compose.dev.yml $@
+}
+if [[ "$1" == "p" ]]; then
+  dcompose pull
+fi
+
+dcompose up -d --remove-orphans
