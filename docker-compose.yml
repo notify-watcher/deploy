@@ -35,7 +35,7 @@ services:
       - redis
 
   email:
-    image: bytemark/smtp
+    image: namshi/smtp
     container_name: notify_watcher-email
     restart: always
 
